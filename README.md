@@ -10,5 +10,6 @@ the following modifications have been made.
 2. No clipping (Scan box)
 3. Improving the Accuracy of Image Recognition <Bitmap(RGB) to YUV>
 
+decode image from gallery, to be upgraded, it needs to dynamically identify the proportion of two-dimensional codes, dynamically compress or tailor.
 
 Author: Zor Ouyang <zorouyang@163.com>
