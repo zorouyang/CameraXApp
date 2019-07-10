@@ -10,6 +10,9 @@ the following modifications have been made.
 2. No clipping (Scan box)
 3. Improving the Accuracy of Image Recognition <Bitmap(RGB) to YUV>
 
-decode image from gallery, to be upgraded, it needs to dynamically identify the proportion of two-dimensional codes, dynamically compress or tailor.
+
+#TBC optimize
+
+Decode image from gallery, it needs to dynamically Recognize the proportion of qrcode, dynamically compress or clipping.
 
 Author: Zor Ouyang <zorouyang@163.com>
