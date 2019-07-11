@@ -24,6 +24,8 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
+import android.graphics.Outline
+import android.graphics.Rect
 import android.graphics.drawable.ColorDrawable
 import android.hardware.Camera
 import android.hardware.display.DisplayManager
@@ -37,10 +39,7 @@ import android.util.DisplayMetrics
 import android.util.Log
 import android.util.Rational
 import android.util.Size
-import android.view.LayoutInflater
-import android.view.TextureView
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.webkit.MimeTypeMap
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -105,8 +104,21 @@ class CameraFragment : Fragment(), Decoder.OnResultListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
         // Mark this as a retain fragment, so the lifecycle does not get restarted on config change
         retainInstance = true
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        inflater.inflate(R.menu.menu_flash_light, menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId == R.id.action_flash) {
+            preview.enableTorch(!preview.isTorchOn)
+        }
+        return super.onOptionsItemSelected(item)
     }
 
     override fun onDestroyView() {
@@ -273,6 +285,13 @@ class CameraFragment : Fragment(), Decoder.OnResultListener {
         val txtParams = viewDescribeText.layoutParams as ConstraintLayout.LayoutParams
         txtParams.topMargin = decoder.framingRect.top / 2 + viewDescribeText.height
         viewDescribeText.layoutParams = txtParams
+
+        viewDescribeText.outlineProvider = object : ViewOutlineProvider() {
+            override fun getOutline(view: View, outline: Outline) {
+                outline.setRoundRect(0, 0, view.width, view.height, (view.height / 2).toFloat())
+            }
+        }
+        viewDescribeText.clipToOutline = true
     }
 
     /** Method used to re-draw the camera UI controls, called every time configuration changes */
@@ -284,6 +303,17 @@ class CameraFragment : Fragment(), Decoder.OnResultListener {
             } else {
                 ActivityCompat.requestPermissions(activity!!, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), _accessExternalStorage)
             }
+
+
+            /*//TODO preview zoom implemention
+            val width = decoder.screenResolution.x * 1 / 20
+            val height =  decoder.screenResolution.y * 1 / 20
+
+            val leftOffset = (decoder.screenResolution.x - width) / 2
+            val topOffset = (decoder.screenResolution.y - height) / 2
+//            preview.zoom(Rect(leftOffset, topOffset, leftOffset + width, topOffset + height))
+
+            preview.zoom(Rect(decoder.screenResolution.x/2, decoder.screenResolution.y/2, 1080, 1920))*/
         }
 
         container.findViewById<View>(R.id.camera_capture_button).setOnClickListener {
@@ -347,7 +377,7 @@ class CameraFragment : Fragment(), Decoder.OnResultListener {
 
     private fun decodeImage(contentUri: Uri) {
         try {
-            val result = decoder.decode(GalleryPhotoUtil.getPath(context, contentUri))
+            val result = decoder.decode(GalleryPhotoUtil.getPath(context, contentUri))//ImageDecoder.scanQRImage(context, contentUri)
             Log.i(TAG, "result: $result")
 
             if (result == null) {

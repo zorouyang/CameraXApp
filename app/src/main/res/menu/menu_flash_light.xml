@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item android:id="@+id/action_flash"
+          android:icon="@drawable/ic_highlight_black_24dp"
+          android:title="Flash light on/off"
+          app:showAsAction="always"/>
+</menu>

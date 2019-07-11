@@ -41,7 +41,7 @@ public class ViewFinderView extends View implements IViewFinder {
     private float mBordersAlpha;
     private int mViewFinderOffset = 0;
 
-    private final Bitmap mDefaultScanLight = BitmapFactory.decodeResource(getResources(), R.drawable.ic_scan_line2);
+    private final Bitmap mDefaultScanLight = BitmapFactory.decodeResource(getResources(), R.drawable.icon_scan_line);
     private final int mDefaultScanVelocity = 6;
 
 

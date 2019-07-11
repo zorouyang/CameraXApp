@@ -1,15 +1,21 @@
 package com.zorouyang.cameraxapp.util;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Rect;
+import android.net.Uri;
 import android.util.Log;
 import com.google.zxing.*;
 import com.google.zxing.common.HybridBinarizer;
 import com.google.zxing.qrcode.QRCodeReader;
 
+import java.io.BufferedInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.EnumMap;
+import java.util.EnumSet;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -245,4 +251,73 @@ public class ImageDecoder {
 
         return Bitmap.createBitmap(bitmap, rect.left, rect.top, rect.width(), rect.height());
     }
+
+
+
+
+
+    /**
+     * Scan QR code from bitmap
+     * you can convert image to bitmap and assign this function to scan
+     */
+    public static String scanQRImage(Context context, Uri path) {
+        InputStream is;
+        try {
+            is = new BufferedInputStream(context.getContentResolver().openInputStream(path));
+            Bitmap bitmap = BitmapFactory.decodeStream(is);
+            return scanQRImage(bitmap);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            return "";
+        }
+    }
+
+    /**
+     * Scan QR code from bitmap
+     * you can convert image to bitmap and assign this function to scan
+     */
+    public static String scanQRImage(Bitmap bMap) {
+        String contents = null;
+
+        int width = bMap.getWidth();
+        int height = bMap.getHeight();
+//        Log.d("Decoder", "scanQRImage original: " + width + "x" + height);
+
+        try {
+//            if (bMap.getHeight() > 500 && bMap.getWidth() > 500)
+//                bMap = Bitmap.createScaledBitmap(bMap, bMap.getWidth() - 300, bMap.getHeight() - 300, false);
+
+            Log.d("Decoder", "scanQRImage scaled: " + width + "x" + height);
+
+            int[] intArray = new int[width * height];
+
+            //copy pixel data from the Bitmap into the 'intArray' array
+            bMap.getPixels(intArray, 0, bMap.getWidth(), 0, 0, bMap.getWidth(), bMap.getHeight());
+
+            LuminanceSource source = new RGBLuminanceSource(bMap.getWidth(), bMap.getHeight(), intArray);
+            BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
+
+            Reader reader = new QRCodeReader();
+            try {
+                Result result = reader.decode(bitmap, hints);
+                contents = result.getText();
+            } catch (Exception e) {
+                Log.e("Decoder", "Error decoding barcode", e);
+            }
+        } catch (Exception e) {
+            Log.e("Decoder", "Exception: " + e.getMessage());
+        } finally {
+            if (contents == null) {
+                //recurrence scale to find appropriate size
+                if (width > 200 && height > 200) {
+                    Bitmap bitmap = Bitmap.createScaledBitmap(bMap, (int) (width * 0.8f), (int) (height * 0.8f), false);
+                    bMap.recycle();
+                    contents = scanQRImage(bitmap);
+                }
+            }
+        }
+
+        return contents;
+    }
+
 }

@@ -4,6 +4,7 @@ package com.zorouyang.cameraxapp
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.os.Process
 import android.view.MenuItem
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -39,7 +40,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == android.R.id.home)
-            onBackPressed()
+            Process.killProcess(Process.myPid())
         return super.onOptionsItemSelected(item)
     }
 
