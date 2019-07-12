@@ -26,6 +26,7 @@ import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.Outline
 import android.graphics.Rect
+import android.graphics.RectF
 import android.graphics.drawable.ColorDrawable
 import android.hardware.Camera
 import android.hardware.display.DisplayManager
@@ -162,16 +163,11 @@ class CameraFragment : Fragment(), Decoder.OnResultListener {
     /** Declare and bind preview, capture and analysis use cases */
     private fun bindCameraUseCases() {
 
-        /*var point = DisplayUtils.getDeviceRealDResolution(context)
-        Log.d(TAG, "getDeviceRealDResolution: ${point.x} x ${point.y}")
-
-        point = DisplayUtils.getScreenResolution(context)
-        Log.d(TAG, "getScreenResolution: ${point.x} x ${point.y}")*/
-
         // Get screen metrics used to setup camera for full screen resolution
         val metrics = DisplayMetrics().also { viewFinder.display.getRealMetrics(it) }
         val screenAspectRatio = Rational(metrics.widthPixels, metrics.heightPixels)
-        Log.d(TAG, "Screen metrics: ${metrics.widthPixels} x ${metrics.heightPixels}")
+
+        Log.d(TAG, "viewFinder: ${viewFinder.width}x${viewFinder.height}")
 
         // Set up the view finder use case to display camera preview
         val viewFinderConfig = PreviewConfig.Builder().apply {
@@ -232,10 +228,7 @@ class CameraFragment : Fragment(), Decoder.OnResultListener {
         CameraX.bindToLifecycle(
                 viewLifecycleOwner, preview, imageCapture, imageAnalyzer)
 
-
-        val finder = container.findViewById<ViewFinderView>(R.id.view_finder_rect)
-        finder.framingRect
-        decoder = Decoder(Size(metrics.widthPixels, metrics.heightPixels), this)
+        decoder = Decoder(Size(viewFinder.width, viewFinder.height), this)
 
         updateViewFinder()
     }
@@ -303,17 +296,6 @@ class CameraFragment : Fragment(), Decoder.OnResultListener {
             } else {
                 ActivityCompat.requestPermissions(activity!!, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), _accessExternalStorage)
             }
-
-
-            /*//TODO preview zoom implemention
-            val width = decoder.screenResolution.x * 1 / 20
-            val height =  decoder.screenResolution.y * 1 / 20
-
-            val leftOffset = (decoder.screenResolution.x - width) / 2
-            val topOffset = (decoder.screenResolution.y - height) / 2
-//            preview.zoom(Rect(leftOffset, topOffset, leftOffset + width, topOffset + height))
-
-            preview.zoom(Rect(decoder.screenResolution.x/2, decoder.screenResolution.y/2, 1080, 1920))*/
         }
 
         container.findViewById<View>(R.id.camera_capture_button).setOnClickListener {
